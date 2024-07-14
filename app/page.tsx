@@ -11,7 +11,12 @@ import {
   XAxis,
   YAxis,
   Tooltip,
+  TooltipProps,
 } from "recharts";
+import {
+  ValueType,
+  NameType,
+} from "recharts/types/component/DefaultTooltipContent";
 import {
   ChartConfig,
   ChartContainer,
@@ -31,7 +36,7 @@ export default function Home() {
   const buttons = ["Summary", "Chart", "Statistics", "Analysis", "Settings"];
   const timeFrames = ["1d", "3d", "1w", "1m", "6m", "1y", "max"];
   const [selectedTimeFrame, setSelectedTimeFrame] = useState("1w");
-  const [labelPoint, setLabelPoint] = useState();
+  const [labelPoint, setLabelPoint] = useState<number | undefined>();
 
   const getFilteredData = () => {
     const endDate = new Date();
@@ -73,7 +78,7 @@ export default function Home() {
     );
   };
 
-  const dataFormatter = (value: number | string): string => {
+  const dataFormatter = (value: ValueType | undefined): string => {
     if (typeof value === "number") {
       return `$${Intl.NumberFormat("us").format(value)}`;
     }
@@ -98,10 +103,15 @@ export default function Home() {
 
   const verticalPoints = [0, 100, 200, 300, 400, 500, 600, 700, 800];
 
-  function CustomTooltip({ active, payload, label, ...args }) {
-    setLabelPoint(args.viewBox.width);
+  function CustomTooltip({
+    active,
+    payload,
+    label,
+    ...args
+  }: TooltipProps<ValueType, NameType>) {
+    setLabelPoint(args?.viewBox?.width);
 
-    if (active) {
+    if (active && payload) {
       return (
         <div className="bg-[#1A243A] p-2 text-[#FFFFFF] rounded-md text-lg">
           <h3>{dataFormatter(payload[0].value)}</h3>
@@ -247,7 +257,6 @@ export default function Home() {
                   fill: "#999999",
                   strokeDasharray: "5 5",
                   strokeWidth: 2,
-                  
                 }}
                 position={{ x: labelPoint }}
                 content={<CustomTooltip />}
